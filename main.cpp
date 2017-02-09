@@ -6,7 +6,9 @@
 #include <algorithm>
 #include <vector>
 #include <iostream>
+#include <FreeImage.h>
 #include "app.h"
+
 
 static void error_callback(int error, const char* description){
     fprintf(stderr, "Error:%s\n", description);
@@ -41,7 +43,7 @@ int main(void){
 
     glfwSetKeyCallback(window, key_callback);
     glfwMakeContextCurrent(window);
-        
+
     App app;
     app.setup();
     while(!glfwWindowShouldClose(window)){
