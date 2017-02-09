@@ -4,11 +4,26 @@
 #include <vector>
 #include <algorithm>
 #include <stdio.h>
+#include <fstream>
+#include <sstream>
+#include <exception>
+#include <stdexcept>
+#include <string.h>
 #include "shader.h"
 
+#define GLOBAL_FILE_DIR "../data"
+#define LOCAL_FILE_DIR "data/"
+
 GLuint Shader::loadShader(GLenum eShaderType, const std::string &fileName){
+    std::string strFilename = FindFileOrThrow(fileName);
+    std::ifstream shaderFile(strFilename.c_str());
+    std::stringstream shaderData;
+    shaderData << shaderFile.rdbuf();
+    shaderFile.close();
+    
     GLuint shader = glCreateShader(eShaderType);
-    const char *strFileData = fileName.c_str();
+    std::string shaderString = shaderData.str();
+    const char *strFileData = shaderString.c_str();
     glShaderSource(shader, 1, &strFileData, NULL);
     glCompileShader(shader);
 
@@ -62,11 +77,25 @@ GLuint Shader::createProgram(const std::vector<GLuint> &shaderList){
 }
 
 void Shader::load(const std::string &vShaderFilename, const std::string &fShaderFilename){
- //cout << "TESTTTTT" <<endl;
     std::vector<GLuint> shaders;
     shaders.push_back(loadShader(GL_VERTEX_SHADER, vShaderFilename));
     shaders.push_back(loadShader(GL_FRAGMENT_SHADER, fShaderFilename));
 
     program = createProgram(shaders);
     std::for_each(shaders.begin(), shaders.end(), glDeleteShader);
+}
+
+std::string Shader::FindFileOrThrow(const std::string &strBasename){
+    std::string strFilename = LOCAL_FILE_DIR + strBasename;
+    std::ifstream testFile(strFilename.c_str());
+    if(testFile.is_open()){
+        return strFilename;
+    }
+    strFilename = GLOBAL_FILE_DIR + strBasename;
+    testFile.open(strFilename.c_str());
+    if(testFile.is_open()){
+        return strFilename;
+    }
+    throw std::runtime_error("Could not find the file " + strBasename);
+
 }
