@@ -1,0 +1,4 @@
+tmux*log
+*.swp
+.DS_STORE
+*.dSYM
