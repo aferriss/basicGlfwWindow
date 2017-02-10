@@ -1,14 +1,3 @@
-#include <iostream>
-#include <string>
-#include <stdlib.h>
-#include <vector>
-#include <algorithm>
-#include <stdio.h>
-#include <fstream>
-#include <sstream>
-#include <exception>
-#include <stdexcept>
-#include <string.h>
 #include "shader.h"
 
 #define GLOBAL_FILE_DIR "../data"
@@ -70,6 +59,8 @@ GLuint Shader::createProgram(const std::vector<GLuint> &shaderList){
 		delete[] strInfoLog;
     }
 
+    setUniformsCache(program);
+
     for(size_t iLoop = 0; iLoop < shaderList.size(); iLoop++){
         glDetachShader(program, shaderList[iLoop]);
     }
@@ -83,6 +74,64 @@ void Shader::load(const std::string &vShaderFilename, const std::string &fShader
 
     program = createProgram(shaders);
     std::for_each(shaders.begin(), shaders.end(), glDeleteShader);
+}
+
+void Shader::setUniformsCache(GLuint &prog){
+    GLint numUniforms = 0;
+    glGetProgramiv(prog, GL_ACTIVE_UNIFORMS, &numUniforms);
+    std::cout << numUniforms << std::endl;
+    GLint uniformMaxLength = 0;
+    glGetProgramiv(prog, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniformMaxLength);
+    
+    GLint count = -1;
+    GLenum type = 0;
+    GLsizei length ;
+    GLint location;
+    std::vector<GLchar> uniformName(uniformMaxLength);
+
+    for(GLint i = 0; i < numUniforms; i++){
+        glGetActiveUniform(prog, i,uniformMaxLength, &length, &count, &type, uniformName.data());
+        std::string name(uniformName.begin(), uniformName.begin()+length);
+        location = glGetUniformLocation(prog, name.c_str());
+        uniformsCache[name] = location;
+        std::cout << name << std::endl;
+        auto arrayPos = name.find('[');
+        if(arrayPos != std::string::npos){
+            name = name.substr(0, arrayPos);
+            uniformsCache[name] = location;
+        }
+    }
+    for ( auto it = uniformsCache.begin(); it != uniformsCache.end(); ++it ){
+        std::cout << " " << it->first << ":" << it->second;
+        std::cout << std::endl;
+    }
+}
+
+GLint Shader::getUniformLocation(const std::string &name) const{
+    auto it = uniformsCache.find(name);
+    
+    if(it == uniformsCache.end()){
+        return -1;
+    } else {
+        return it->second;
+    }
+}
+
+void Shader::setUniform1i(const std::string &name, int v1) const {
+   int loc = getUniformLocation(name);
+   if(loc != -1) glUniform1i(loc, v1);
+}
+
+void Shader::setUniform1f(const std::string &name, float v1) const {
+    int loc = getUniformLocation(name);
+    if(loc != -1) glUniform1f(loc, v1);
+}
+
+void Shader::setUniformTexture(const std::string &name, const GLuint &texId, int slot) const{
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, texId);
+    setUniform1i(name, slot);
+    glActiveTexture(GL_TEXTURE0);
 }
 
 std::string Shader::FindFileOrThrow(const std::string &strBasename){

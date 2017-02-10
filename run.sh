@@ -1,1 +1,1 @@
-g++ main.cpp shader.cpp plane.cpp app.cpp -o test -g -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -I/usr/local/include -L /usr/local/lib -lglfw3 -lfreeimage && ./test
+g++ main.cpp shader.cpp plane.cpp app.cpp texture.cpp -std=c++11 -o test -g -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -I/usr/local/include -L /usr/local/lib -lglfw3 -lfreeimage && ./test

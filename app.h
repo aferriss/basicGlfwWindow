@@ -7,6 +7,7 @@
 #include <vector>
 #include "shader.h"
 #include "plane.h"
+#include "texture.h"
 #include <iostream>
 
 
@@ -17,5 +18,6 @@ class App {
         
         Plane plane;
         Shader testShader;
-
+        Texture tex;
+        float time;
 };
