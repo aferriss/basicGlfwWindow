@@ -1,3 +1,4 @@
+#include <GL/glew.h>
 #define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
@@ -44,6 +45,10 @@ int main(void){
     glfwSetKeyCallback(window, key_callback);
     glfwMakeContextCurrent(window);
 
+    glewExperimental = GL_TRUE;
+    glewInit();
+
+//----------------------------------------------
     App app;
     app.setup();
     while(!glfwWindowShouldClose(window)){
