@@ -10,8 +10,10 @@
 #include <stdexcept>
 #include <string.h>
 #include <FreeImage.h>
+//#include <GL/glew.h>
+#define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
-
+#include "plane.h"
 
 class Fbo {
     public:
@@ -23,7 +25,9 @@ class Fbo {
         void begin();
         void end();
         void draw();
-
+        GLuint getTexture();
+  private:
+        Plane plane;
 
 
 };
